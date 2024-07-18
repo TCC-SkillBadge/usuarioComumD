@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const userController_1 = require("./controllers/userController");
+const badgeController_1 = require("./controllers/badgeController");
+const portfolioController_1 = require("./controllers/portfolioController");
+const router = (0, express_1.Router)();
+router.post('/user/register', userController_1.registerUser);
+router.post('/user/login', userController_1.loginUser);
+router.get('/user/info', userController_1.getUserInfo);
+router.post('/badge/assign', badgeController_1.assignBadgeController);
+router.get('/badge/confirm/:token', badgeController_1.confirmBadgeController);
+router.get('/badge/user/:email_com', badgeController_1.getUserBadgesController);
+router.post('/portfolio/generate', portfolioController_1.generatePortfolio);
+exports.default = router;
