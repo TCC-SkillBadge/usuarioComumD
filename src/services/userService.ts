@@ -1,9 +1,18 @@
+import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import { getUserByEmail, createUser, getUserById } from '../dao/userDao';
 import { getBadgesByUserEmail } from '../dao/badgeDao';
-import axios from 'axios';
+
+// Função para buscar informações do usuário empresarial a partir de outra instância
+const getEnterpriseUserInfo = async (email: string) => {
+  const response = await axios.get(`http://localhost:7003/api/users/${email}`);
+  if (response.data.length === 0) {
+    throw new Error('Usuário empresarial não encontrado');
+  }
+  return response.data[0];
+};
 
 export const register = async (userData: any) => {
   const { email, password, fullName, occupation, country } = userData;
@@ -37,4 +46,9 @@ export const getUserBadges = async (email: string) => {
 export const getUserSkills = async (email: string) => {
   const response = await axios.get(`http://skills-service/api/skills?email=${email}`);
   return response.data;
+};
+
+// Função para buscar informações do usuário empresarial
+export const getEnterpriseUser = async (email: string) => {
+  return await getEnterpriseUserInfo(email);
 };

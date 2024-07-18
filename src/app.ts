@@ -1,9 +1,12 @@
-import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import express from 'express';
+import { connectToDatabase } from './models';  // Corrigido para garantir a importação correta
+import { errorHandler } from './middleware/errorHandler';
 import routes from './routes';
 
 dotenv.config();
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 app.use(express.json());
@@ -11,5 +14,10 @@ app.use(cors());
 
 app.use('/api', routes);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Middleware de tratamento de erros
+app.use(errorHandler);
+
+app.listen(PORT, async () => {
+    await connectToDatabase();
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
