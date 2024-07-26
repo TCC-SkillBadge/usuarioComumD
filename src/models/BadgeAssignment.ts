@@ -55,7 +55,7 @@ BadgeAssignment.init({
 }, {
   sequelize,
   modelName: 'BadgeAssignment',
-  tableName: 'badge',
+  tableName: 'badge_assignment',
   timestamps: false,
 });
 
