@@ -1,7 +1,8 @@
+// src/app.ts
 import dotenv from 'dotenv';
 import cors from 'cors';
 import express from 'express';
-import { connectToDatabase } from './models';  // Corrigido para garantir a importação correta
+import { connectToDatabase } from './config/database';  // Importação corrigida
 import { errorHandler } from './middleware/errorHandler';
 import routes from './routes';
 
@@ -18,6 +19,6 @@ app.use('/api', routes);
 app.use(errorHandler);
 
 app.listen(PORT, async () => {
-    await connectToDatabase();
-    console.log(`Servidor rodando na porta ${PORT}`);
+  await connectToDatabase();
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
