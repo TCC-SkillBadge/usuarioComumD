@@ -46,7 +46,15 @@ export const getInfo = async (email: string) => {
 };
 
 export const getUserBadges = async (email: string) => {
-  return await getBadgesByUserEmail(email);
+  try {
+    console.log(`Buscando badges para o usuário: ${email}`);
+    const badges = await getBadgesByUserEmail(email);
+    console.log(`Badges obtidas: ${JSON.stringify(badges)}`);
+    return badges;
+  } catch (error) {
+    console.error('Erro no getUserBadges:', error);
+    throw new Error('Error retrieving user badges');
+  }
 };
 
 export const getUserSkills = async (email: string) => {
