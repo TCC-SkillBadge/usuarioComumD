@@ -25,7 +25,7 @@ export const assignBadgeController = async (req: Request, res: Response) => {
     const email_empr = userEnterpriseResponse.data.email_comercial;
 
     // Resgatar informações da badge
-    const badgeResponse = await axios.get(`http://localhost:7001/consultar?pesquisa=${id_badge}`);
+    const badgeResponse = await axios.get(`http://localhost:7001/badge/consultar?pesquisa=${id_badge}`);
     if (!badgeResponse.data.length) {
       return res.status(404).send('Badge não encontrada');
     }
