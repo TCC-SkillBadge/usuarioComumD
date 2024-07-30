@@ -7,7 +7,7 @@ import { getBadgesByUserEmail } from '../dao/badgeDao';
 
 // Função para buscar informações do usuário empresarial a partir de outra instância
 const getEnterpriseUserInfo = async (email: string) => {
-  const response = await axios.get(`http://localhost:7003/api/users/${email}`);
+  const response = await axios.get(`http://localhost:7003/api/acessa-info?email_comercial=${email}`);
   if (response.data.length === 0) {
     throw new Error('Usuário empresarial não encontrado');
   }
@@ -15,9 +15,9 @@ const getEnterpriseUserInfo = async (email: string) => {
 };
 
 export const register = async (userData: any) => {
-  const { email, password, fullName, occupation, country } = userData;
+  const { email, password, fullName, occupation, country, phoneNumber } = userData;
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await createUser({ email, password: hashedPassword, fullName, occupation, country });
+  const user = await createUser({ email, password: hashedPassword, fullName, occupation, country, phoneNumber });
   return user;
 };
 
@@ -36,7 +36,13 @@ export const getInfo = async (email: string) => {
   if (!user) {
     throw new Error('User not found');
   }
-  return user;
+  return {
+    email: user.email,
+    fullName: user.fullName,
+    occupation: user.occupation,
+    country: user.country,
+    phoneNumber: user.phoneNumber
+  };
 };
 
 export const getUserBadges = async (email: string) => {

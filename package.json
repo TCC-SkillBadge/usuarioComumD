@@ -4,7 +4,8 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
-    "start": "npx ts-node src/app.ts"
+    "start": "npx ts-node src/app.ts",
+    "start:dev": "nodemon --exec npx ts-node src/app.ts"
   },
   "dependencies": {
     "axios": "^1.7.1",
@@ -29,6 +30,7 @@
     "@types/nodemailer": "^6.4.15",
     "@types/pdfkit": "^0.13.4",
     "@types/uuid": "^10.0.0",
+    "nodemon": "^3.1.4",
     "typescript": "^5.5.3"
   }
 }

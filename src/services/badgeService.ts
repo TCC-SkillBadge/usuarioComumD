@@ -1,8 +1,9 @@
-// src/services/badgeService.ts
 import BadgeAssignment from '../models/BadgeAssignment';
+import crypto from 'crypto';
 
-// Função para atribuir badge
 export const assignBadge = async (email_com: string, email_empr: string, id_badge: number, imagem_b: string, descricao: string) => {
+  const confirmation_token = crypto.randomBytes(32).toString('hex');
+
   const badgeAssignment = await BadgeAssignment.create({
     email_com,
     email_empr,
@@ -10,12 +11,12 @@ export const assignBadge = async (email_com: string, email_empr: string, id_badg
     imagem_b,
     descricao,
     dt_emissao: new Date(),
+    confirmation_token
   });
 
   return badgeAssignment;
 };
 
-// Função para confirmar atribuição de badge
 export const confirmAssignment = async (token: string) => {
   const badgeAssignment = await BadgeAssignment.findOne({ where: { confirmation_token: token } });
 
@@ -29,7 +30,6 @@ export const confirmAssignment = async (token: string) => {
   return badgeAssignment;
 };
 
-// Função para obter badges por email do usuário
 export const getBadgesByUserEmail = async (email_com: string) => {
   return await BadgeAssignment.findAll({ where: { email_com } });
 };

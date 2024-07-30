@@ -1,4 +1,3 @@
-// src/models/BadgeAssignment.ts
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
 
@@ -55,7 +54,7 @@ BadgeAssignment.init({
 }, {
   sequelize,
   modelName: 'BadgeAssignment',
-  tableName: 'badge_assignment',
+  tableName: 'badge_assignments',
   timestamps: false,
 });
 
