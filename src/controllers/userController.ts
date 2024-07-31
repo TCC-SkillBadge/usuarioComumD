@@ -1,41 +1,81 @@
+// src/controllers/userController.ts
 import { Request, Response } from 'express';
-import { register, login, getInfo, getUserBadges } from '../services/userService';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { getUserByEmail, createUser, getUserById } from '../dao/userDao';
+import { getBadgesByUserEmail } from '../dao/badgeDao';
+import { AuthenticatedRequest } from '../middleware/authMiddleware';
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    const user = await register(req.body);
+    const { email, password, fullName, occupation, country, phoneNumber } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await createUser({ email, password: hashedPassword, fullName, occupation, country, phoneNumber });
     res.status(201).json(user);
   } catch (error) {
-    res.status(500).json({ message: 'Error registering user', error });
+    if (error instanceof Error) {
+      res.status(500).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'Unknown error occurred' });
+    }
   }
 };
 
 export const loginUser = async (req: Request, res: Response) => {
   try {
-    const token = await login(req.body);
-    res.status(200).json({ token });
+    const { email, password } = req.body;
+    const user = await getUserByEmail(email);
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET as string, { expiresIn: process.env.JWT_EXPIRATION });
+    res.json({ token, tipoUsuario: 'UC' });
   } catch (error) {
-    res.status(500).json({ message: 'Error logging in user', error });
+    if (error instanceof Error) {
+      res.status(500).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'Unknown error occurred' });
+    }
   }
 };
 
-export const getUserInfo = async (req: Request, res: Response) => {
+export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userInfo = await getInfo(req.query.email as string);
-    res.status(200).json(userInfo);
+    if (!req.user || typeof req.user === 'string') {
+      throw new Error('User not authenticated');
+    }
+
+    const email = (req.user as jwt.JwtPayload).email as string;
+    const user = await getUserById(email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({
+      email: user.email,
+      fullName: user.fullName,
+      occupation: user.occupation,
+      country: user.country,
+      phoneNumber: user.phoneNumber,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error getting user info', error });
+    if (error instanceof Error) {
+      res.status(500).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'Unknown error occurred' });
+    }
   }
 };
 
 export const getUserBadgesController = async (req: Request, res: Response) => {
   try {
     const email = req.query.email as string;
-    console.log(`Recebida requisição para obter badges do usuário: ${email}`);
-    const badges = await getUserBadges(email);
-    res.status(200).json(badges);
+    const badges = await getBadgesByUserEmail(email);
+    res.json(badges);
   } catch (error) {
-    console.error('Erro no getUserBadgesController:', error);
-    res.status(500).json({ message: 'Error getting user badges', error });
+    if (error instanceof Error) {
+      res.status(500).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'Unknown error occurred' });
+    }
   }
 };

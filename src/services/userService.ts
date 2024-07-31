@@ -28,8 +28,12 @@ export const login = async (loginData: any) => {
     throw new Error('Invalid credentials');
   }
   const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET as string, { expiresIn: process.env.JWT_EXPIRATION });
-  return token;
+  return {
+    token,
+    tipoUsuario: "UC"
+  };
 };
+
 
 export const getInfo = async (email: string) => {
   const user = await getUserById(email);
