@@ -11,7 +11,7 @@ export const assignBadgeController = async (req: Request, res: Response) => {
       return res.status(401).send('API Key não fornecida');
     }
 
-    // Verificar a API Key no serviço de usuário empresarial
+    console.log('Verificando API Key...');
     const userEnterpriseResponse = await axios.get(`http://localhost:7003/api/acessar-info-usuario-by-api-key`, {
       params: {
         api_key: apiKey
@@ -23,16 +23,22 @@ export const assignBadgeController = async (req: Request, res: Response) => {
     }
 
     const email_empr = userEnterpriseResponse.data.email_comercial;
+    console.log(`Email empresarial: ${email_empr}`);
 
-    // Resgatar informações da badge
-    const badgeResponse = await axios.get(`http://localhost:7001/api/badge/consultar?pesquisa=${id_badge}`);
+    console.log(`Resgatando informações da badge com id: ${id_badge}...`);
+    const badgeResponse = await axios.get(`http://localhost:7001/badge/consultar?pesquisa=${id_badge}`);
+    
+    console.log('Resposta da API de badge:', badgeResponse.data);
+
     if (!badgeResponse.data.length) {
+      console.error('Badge não encontrada');
       return res.status(404).send('Badge não encontrada');
     }
 
     const badge = badgeResponse.data[0];
     const { imagem_mb, desc_certificacao } = badge;
 
+    console.log('Atribuindo badge...');
     const badgeAssignment = await assignBadge(email_com, email_empr, id_badge, imagem_mb, desc_certificacao);
     res.status(201).json(badgeAssignment);
   } catch (error: unknown) {
