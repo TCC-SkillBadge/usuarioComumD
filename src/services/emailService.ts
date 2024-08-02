@@ -29,3 +29,20 @@ export const sendConfirmationEmail = async (to: string, token: string) => {
     throw new Error('Erro ao enviar email de confirmação');
   }
 };
+
+export const sendPasswordResetEmail = async (to: string, resetLink: string) => {
+  const mailOptions = {
+    from: process.env.MAIL_USER,
+    to,
+    subject: 'Password Reset Request',
+    text: `Click the link to reset your password: ${resetLink}`
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Password reset email sent to:', to);
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    throw new Error('Error sending password reset email');
+  }
+};

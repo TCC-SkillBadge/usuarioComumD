@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { getUserByEmail, createUser, getUserById } from '../dao/userDao';
+import { getUserByEmail, createUser, getUserById, updateUserById } from '../dao/userDao';
 import { getBadgesByUserEmail } from '../dao/badgeDao';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 
@@ -71,6 +71,31 @@ export const getUserBadgesController = async (req: Request, res: Response) => {
     const email = req.query.email as string;
     const badges = await getBadgesByUserEmail(email);
     res.json(badges);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'Unknown error occurred' });
+    }
+  }
+};
+
+export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.user || typeof req.user === 'string') {
+      throw new Error('User not authenticated');
+    }
+
+    const email = (req.user as jwt.JwtPayload).email as string;
+    const { fullName, occupation, country, phoneNumber } = req.body;
+
+    const user = await getUserById(email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const updatedUser = await updateUserById(email, { fullName, occupation, country, phoneNumber });
+    res.json({ message: 'User updated successfully', user: updatedUser });
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ message: error.message });
